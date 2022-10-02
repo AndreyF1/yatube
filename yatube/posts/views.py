@@ -34,8 +34,9 @@ def profile(request, username):
     post_list = Post.objects.filter(author=author)
     title = f'Записи {username}'
     page_obj = get_pages(post_list, request)
-    following = request.user.is_authenticated and Follow.objects.filter(
-            user=request.user, author=author).exists()
+    following = (request.user.is_authenticated
+                 and Follow.objects.filter(user=request.user,
+                                           author=author).exists())
     context = {
         'author': author,
         'title': title,
@@ -130,8 +131,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     if Follow.objects.filter(
-            user=request.user, author__username=username
-        ).exists():
+            user=request.user, author__username=username).exists():
         Follow.objects.filter(
             user=request.user, author__username=username
         ).delete()
