@@ -11,10 +11,8 @@ from django.views.decorators.cache import cache_page
 def index(request):
     post_list = Post.objects.all()
     template = 'posts/index.html'
-    title = 'Последние обновления на сайте'
     page_obj = get_pages(post_list, request)
     context = {
-        'title': title,
         'page_obj': page_obj,
     }
     return render(request, template, context)
@@ -23,11 +21,9 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     post_list = Post.objects.filter(group=group)
-    title = f'Записи сообщества {slug}'
     page_obj = get_pages(post_list, request)
     context = {
         'group': group,
-        'title': title,
         'page_obj': page_obj,
     }
     return render(request, 'posts/group_list.html', context)
@@ -38,12 +34,8 @@ def profile(request, username):
     post_list = Post.objects.filter(author=author)
     title = f'Записи {username}'
     page_obj = get_pages(post_list, request)
-    if request.user.is_authenticated:
-        following = Follow.objects.filter(
-            user=request.user, author=author
-        ).exists()
-    else:
-        following = False
+    following = request.user.is_authenticated and Follow.objects.filter(
+            user=request.user, author=author).exists()
     context = {
         'author': author,
         'title': title,
@@ -55,13 +47,8 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    form = CommentForm(request.POST or None)
+    form = CommentForm()
     comments = post.comments.all()
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.save()
-        return redirect('posts:post_detail', post_id=post_id)
     context = {
         'form': form,
         'post': post,
@@ -132,13 +119,6 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # if request.user.username != username:
-    #     Follow.objects.create(
-    #         user=request.user,
-    #         author=User.objects.get(username=username)
-    #     )
-    #     return redirect('posts:profile', username=username)
-    # return redirect('posts:profile', username=username)
     if request.user != get_object_or_404(User, username=username):
         Follow.objects.get_or_create(
             user=request.user,
@@ -149,7 +129,10 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    Follow.objects.filter(
-        user=request.user, author__username=username
-    ).delete()
+    if Follow.objects.filter(
+            user=request.user, author__username=username
+        ).exists():
+        Follow.objects.filter(
+            user=request.user, author__username=username
+        ).delete()
     return redirect('posts:profile', username=username)

@@ -81,11 +81,9 @@ class PostPagesTests(TestCase):
         post_text_0 = first_object.text
         post_group_0 = first_object.group.title
         image_0 = first_object.image
-        title = response.context['title']
         self.assertEqual(post_author_0, 'author')
         self.assertEqual(post_text_0, 'Тестовый пост, больше длинны текста')
         self.assertEqual(post_group_0, 'Тестовая группа')
-        self.assertEqual(title, 'Последние обновления на сайте')
         self.assertEqual(image_0, PostPagesTests.post.image)
 
     def test_group_list_show_correct_context(self):
@@ -97,12 +95,10 @@ class PostPagesTests(TestCase):
         post_text_0 = first_object.text
         post_group_0 = first_object.group.title
         image_0 = first_object.image
-        title = response.context['title']
         group = response.context['group']
         self.assertEqual(post_author_0, 'author')
         self.assertEqual(post_text_0, 'Тестовый пост, больше длинны текста')
         self.assertEqual(post_group_0, 'Тестовая группа')
-        self.assertEqual(title, f'Записи сообщества {group.slug}')
         self.assertEqual(group.title, 'Тестовая группа')
         self.assertEqual(image_0, PostPagesTests.post.image)
 
