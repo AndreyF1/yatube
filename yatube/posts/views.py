@@ -50,7 +50,6 @@ def post_detail(request, post_id):
     context = {
         'form': form,
         'post': post,
-        'post_id': post_id,
     }
     return render(request, 'posts/post_detail.html', context)
 
