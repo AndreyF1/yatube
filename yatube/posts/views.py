@@ -32,14 +32,12 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_list = Post.objects.filter(author=author)
-    title = f'Записи {username}'
     page_obj = get_pages(post_list, request)
     following = (request.user.is_authenticated
                  and Follow.objects.filter(user=request.user,
                                            author=author).exists())
     context = {
         'author': author,
-        'title': title,
         'page_obj': page_obj,
         'following': following,
     }
@@ -49,11 +47,9 @@ def profile(request, username):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm()
-    comments = post.comments.all()
     context = {
         'form': form,
         'post': post,
-        'comments': comments,
         'post_id': post_id,
     }
     return render(request, 'posts/post_detail.html', context)
@@ -109,10 +105,8 @@ def follow_index(request):
     posts = Post.objects.filter(
         author__following__user=request.user
     )
-    title = 'Мои подписки'
     page_obj = get_pages(posts, request)
     context = {
-        'title': title,
         'page_obj': page_obj,
     }
     return render(request, 'posts/follow.html', context)
@@ -130,9 +124,7 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    if Follow.objects.filter(
-            user=request.user, author__username=username).exists():
-        Follow.objects.filter(
-            user=request.user, author__username=username
-        ).delete()
+    qs = Follow.objects.filter(user=request.user, author__username=username)
+    if qs.exists():
+        qs.delete()
     return redirect('posts:profile', username=username)

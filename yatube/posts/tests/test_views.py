@@ -111,12 +111,10 @@ class PostPagesTests(TestCase):
         post_text_0 = first_object.text
         post_group_0 = first_object.group.title
         image_0 = first_object.image
-        title = response.context['title']
         author = response.context['author'].username
         self.assertEqual(post_author_0, 'author')
         self.assertEqual(post_text_0, 'Тестовый пост, больше длинны текста')
         self.assertEqual(post_group_0, 'Тестовая группа')
-        self.assertEqual(title, f'Записи {post_author_0}')
         self.assertEqual(author, 'author')
         self.assertEqual(image_0, PostPagesTests.post.image)
 
